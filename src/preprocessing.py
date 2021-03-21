@@ -15,7 +15,7 @@ class preprocessing:
         self.dim_reduct = dimension_reduction
         self.data_whitening = data_whitening
 
-    def _prepocess_mnist(self):
+    def preprocess_mnist(self):
         print("Preprocessing the MNIST dataset...\n")
 
         (x_train, y_train), (x_test, y_test) = self.dataset
