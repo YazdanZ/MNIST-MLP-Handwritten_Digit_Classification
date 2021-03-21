@@ -47,22 +47,7 @@ network.append(HiddenLayer(200, 10))
 train_log = []
 val_log = []
 
-mlp = MLP()
-for epoch in range(25):
-
-    for x_batch, y_batch in mlp.iterate_minibatches(
-        X_train, y_train, batchsize=32, shuffle=True
-    ):
-        mlp.fit(network, x_batch, y_batch)
-
-    train_log.append(np.mean(mlp.predict(network, X_train) == y_train))
-    val_log.append(np.mean(mlp.predict(network, X_val) == y_val))
-
-    print("Epoch", epoch)
-    print("Train accuracy:", train_log[-1])
-    print("Val accuracy:", val_log[-1])
-    plt.plot(train_log, label="train accuracy")
-    plt.plot(val_log, label="val accuracy")
-    plt.legend(loc="best")
-    plt.grid()
-    plt.show()
+mlp = MLP(network)
+gen = mlp.fit(X_train, y_train, 25, 32, X_val, y_val, True)
+for v in gen:
+    print(v)

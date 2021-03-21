@@ -7,26 +7,38 @@ from HiddenLayer import HiddenLayer
 
 
 class MLP:
-    def __init__(self):
-        pass
+    def __init__(self, network):
+        self.network = network
 
-    def forward(self, network, X):
+    def forward_propagate(self, X):
         activations = []
         input = X
 
         # Looping through each layer
-        for l in network:
-            activations.append(l.forward(input))
+        for l in self.network:
+            activations.append(l.forward_propagate(input))
             # Updating input to last layer output
             input = activations[-1]
 
-        assert len(activations) == len(network)
+        assert len(activations) == len(self.network)
         return activations
 
-    def fit(self, network, X, y):
+    def fit(
+        self, X, y, epoch_num, batchsize, X_test=None, y_test=None, show_progress=False
+    ):
+        for epoch in range(epoch_num):
+            for x_batch, y_batch in self.iterate_minibatches(
+                X, y, batchsize=batchsize, shuffle=True
+            ):
+                self._fit(x_batch, y_batch)
+            if show_progress:
+                pred = self.predict(X_test)
+                yield self.evaluate_acc(y_test, pred)
+
+    def _fit(self, X, y):
 
         # Get the layer activations
-        layer_activations = self.forward(network, X)
+        layer_activations = self.forward_propagate(X)
         layer_inputs = [
             X
         ] + layer_activations  # layer_input[i] is an input for network[i]
@@ -38,18 +50,18 @@ class MLP:
 
         # Propagate gradients through the network
         # Reverse propogation as this is backprop
-        for layer_index in range(len(network))[::-1]:
-            layer = network[layer_index]
+        for layer_index in range(len(self.network))[::-1]:
+            layer = self.network[layer_index]
 
-            loss_grad = layer.backward(
+            loss_grad = layer.backward_propagate(
                 layer_inputs[layer_index], loss_grad
             )  # grad w.r.t. input, also weight updates
 
         return np.mean(loss)
 
-    def predict(self, network, X):
+    def predict(self, X):
 
-        logits = self.forward(network, X)[-1]
+        logits = self.forward_propagate(X)[-1]
         return logits.argmax(axis=-1)
 
     @staticmethod
@@ -63,3 +75,8 @@ class MLP:
             else:
                 excerpt = slice(start_idx, start_idx + batchsize)
             yield inputs[excerpt], targets[excerpt]
+
+    @staticmethod
+    def evaluate_acc(true_labels, target_labels):
+        """Evaluate the model accuracy""" ""
+        return np.mean(true_labels == target_labels)
