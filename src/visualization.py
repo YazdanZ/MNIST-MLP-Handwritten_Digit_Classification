@@ -18,5 +18,9 @@ class visulaization:
     def digits_distribution(self):
         x = [{i: np.random.randint(1, 5)} for i in range(10)]
         my_colors = [(x / 10.0, x / 20.0, 0.75) for x in range(10)]
-        _ = pd.DataFrame(self.y_train).value_counts().plot(kind='bar', stacked=True, color=my_colors)
+        _ = (
+            pd.DataFrame(self.y_train)
+            .value_counts()
+            .plot(kind="bar", stacked=True, color=my_colors)
+        )
         plt.show()
