@@ -46,7 +46,7 @@ print(f"Sklearn MLP with preprocessed images: {accuracy}\n")
 train_log = []
 val_log = []
 
-mlp = MLP(ReLU, X_train.shape[1], [100, 200])
+mlp = MLP(ReLU, X_train.shape[1], [100, 200, 300])
 gen = mlp.fit(X_train, y_train, 25, 32, X_test, y_test, True)
 for epoch, accuracy in enumerate(gen):
     print(f"epoch {epoch}: {accuracy}")

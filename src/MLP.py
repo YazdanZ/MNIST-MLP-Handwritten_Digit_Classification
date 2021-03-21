@@ -10,6 +10,10 @@ class MLP:
     def __init__(self, activation, num_in, hidden, num_out=10):
         network = []
 
+        # no hidden layers
+        if len(hidden) == 0:
+            network.append(HiddenLayer(num_in, num_out))
+
         for index, layer in enumerate(hidden):
 
             # input layer
