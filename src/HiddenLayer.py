@@ -1,26 +1,33 @@
-from MLPLayer import MLPLayer
 import numpy as np
+from Layer import Layer
 
-np.random.seed(42)
 
+class HiddenLayer(Layer):
+    def __init__(self, input_units, output_units, learning_rate=0.1):
 
-class HiddenLayer(MLPLayer):
-    def __init__(self, input, output, learning_rate=0.1):
-        self.lr = learning_rate
-        self.bias = np.zeros(output)
-        self.weight = np.random.normal(
-            loc=0.0, scale=np.sqrt(2 / (input + output)), size=(input, output)
+        self.learning_rate = learning_rate
+        self.weights = np.random.normal(
+            loc=0.0,
+            scale=np.sqrt(2 / (input_units + output_units)),
+            size=(input_units, output_units),
+        )
+        self.biases = np.zeros(output_units)
+
+    def forward(self, input):
+        return np.dot(input, self.weights) + self.biases
+
+    def backward(self, input, grad_output):
+        grad_input = np.dot(grad_output, self.weights.T)
+
+        grad_weights = np.dot(input.T, grad_output)
+        grad_biases = grad_output.mean(axis=0) * input.shape[0]
+
+        assert (
+            grad_weights.shape == self.weights.shape
+            and grad_biases.shape == self.biases.shape
         )
 
-        def forward(self, input):
-            return np.dot(input, self.weight) + self.bias
+        self.weights = self.weights - self.learning_rate * grad_weights
+        self.biases = self.biases - self.learning_rate * grad_biases
 
-        def backward(self, input, gradient_output):
-            grad_in = np.dot(gradient_output, self.weight.T)
-            grad_weight = np.dot(input.T, gradient_output)
-            grad_biases = gradient_output.mean(axis=0) * input.shape[0]
-
-            self.weight -= self.lr * grad_weight
-            self.bias -= self.lr * grad_biases
-
-            return grad_in
+        return grad_input

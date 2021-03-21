@@ -1,49 +1,65 @@
 import numpy as np
 from tqdm import trange
-from Loss import softmax_cross_entropy, softmax_cross_entropy_grad
+from Layer import Layer
+from Activation import ReLU, Sig, Tanh, Activation
+from Loss import softmax_crossentropy_with_logits, grad_softmax_crossentropy_with_logits
 from HiddenLayer import HiddenLayer
-from MLPLayer import MLPLayer, Sig, ReLU, Tanh
-
-np.random.seed(42)
 
 
 class MLP:
-    def __init__(self, layers):
-        self.layers = layers
+    def __init__(self):
+        pass
 
-    def forward(self, X):
+    def forward(self, network, X):
         activations = []
         input = X
 
-        for layer in self.layers:
-            activations.append(layer.forward(input))
+        # Looping through each layer
+        for l in network:
+            activations.append(l.forward(input))
+            # Updating input to last layer output
             input = activations[-1]
 
+        assert len(activations) == len(network)
         return activations
 
-    def predict(self, X):
-        logits = self.forward(X)[-1]
-        return logits.argmax(axis=-1)
+    def fit(self, network, X, y):
 
-    def fit(self, X, y):
-        activations = self.forward(X)
-        inputs = [X] + activations
-        logits = activations[-1]
+        # Get the layer activations
+        layer_activations = self.forward(network, X)
+        layer_inputs = [
+            X
+        ] + layer_activations  # layer_input[i] is an input for network[i]
+        logits = layer_activations[-1]
 
-        # find initial gradient and loss
-        loss = softmax_cross_entropy(logits, y)
-        loss_gradient = softmax_cross_entropy_grad(logits, y)
+        # Compute the loss and the initial gradient
+        loss = softmax_crossentropy_with_logits(logits, y)
+        loss_grad = grad_softmax_crossentropy_with_logits(logits, y)
 
-        # backpropagation through the network
-        for index in range(len(self.layers))[::-1]:
-            layer = self.layers[index]
-            loss_gradient = layer.backward(inputs[index], loss_gradient)
+        # Propagate gradients through the network
+        # Reverse propogation as this is backprop
+        for layer_index in range(len(network))[::-1]:
+            layer = network[layer_index]
+
+            loss_grad = layer.backward(
+                layer_inputs[layer_index], loss_grad
+            )  # grad w.r.t. input, also weight updates
 
         return np.mean(loss)
 
-    def minibatch_iterator(self, X, y, batch_size):
-        indices = np.random.permutation(len(X))
+    def predict(self, network, X):
 
-        for index in trange(0, len(X) - batch_size + 1, batch_size):
-            ex = indices[index : index + batch_size]
-            yield X[ex], y[ex]
+        logits = self.forward(network, X)[-1]
+        return logits.argmax(axis=-1)
+
+    @staticmethod
+    def iterate_minibatches(inputs, targets, batchsize, shuffle=False):
+        assert len(inputs) == len(targets)
+        if shuffle:
+            indices = np.random.permutation(len(inputs))
+        for start_idx in trange(0, len(inputs) - batchsize + 1, batchsize):
+            if shuffle:
+                excerpt = indices[start_idx : start_idx + batchsize]
+            else:
+                excerpt = slice(start_idx, start_idx + batchsize)
+            yield inputs[excerpt], targets[excerpt]

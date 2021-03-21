@@ -1,11 +1,11 @@
 import keras
 import matplotlib.pyplot as plt
+from Loss import softmax_crossentropy_with_logits, grad_softmax_crossentropy_with_logits
 from HiddenLayer import HiddenLayer
-from MLPLayer import MLPLayer, ReLU, Tanh, Sig
-from MLP import MLP
+from Layer import Layer
+from Activation import ReLU, Sig, Tanh
 import numpy as np
-
-np.random.seed(42)
+from MLP import MLP
 
 
 def load_dataset(flatten=False):
@@ -29,32 +29,35 @@ def load_dataset(flatten=False):
 
 X_train, y_train, X_val, y_val, X_test, y_test = load_dataset(flatten=True)
 
-
 ## Let's look at some example
 plt.figure(figsize=[6, 6])
 for i in range(4):
     plt.subplot(2, 2, i + 1)
     plt.title("Label: %i" % y_train[i])
     plt.imshow(X_train[i].reshape([28, 28]), cmap="gray")
-    plt.show()
+plt.show()
 
 network = []
-network.append(HiddenLayer(X_train.shape[1], 100, 0.1))
+network.append(HiddenLayer(X_train.shape[1], 100))
 network.append(ReLU())
-network.append(HiddenLayer(100, 200, 0.1))
+network.append(HiddenLayer(100, 200))
 network.append(ReLU())
-network.append(HiddenLayer(200, 10, 0.1))
+network.append(HiddenLayer(200, 10))
 
-mlp = MLP(network)
 train_log = []
 val_log = []
-for epoch in range(1):
-    for x_b, y_b in mlp.minibatch_iterator(X_train, y_train, batch_size=32):
-        t = mlp.fit(x_b, y_b)
 
-    train_log.append(np.mean(mlp.predict(X_train) == y_train))
-    print(mlp.predict(X_train))
-    val_log.append(np.mean(mlp.predict(X_val) == y_val))
+mlp = MLP()
+for epoch in range(25):
+
+    for x_batch, y_batch in mlp.iterate_minibatches(
+        X_train, y_train, batchsize=32, shuffle=True
+    ):
+        mlp.fit(network, x_batch, y_batch)
+
+    train_log.append(np.mean(mlp.predict(network, X_train) == y_train))
+    val_log.append(np.mean(mlp.predict(network, X_val) == y_val))
+
     print("Epoch", epoch)
     print("Train accuracy:", train_log[-1])
     print("Val accuracy:", val_log[-1])
@@ -62,5 +65,4 @@ for epoch in range(1):
     plt.plot(val_log, label="val accuracy")
     plt.legend(loc="best")
     plt.grid()
-    if epoch == 24:
-        plt.show()
+    plt.show()
