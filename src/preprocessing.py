@@ -6,7 +6,9 @@ import pandas as pd
 
 
 class preprocessing:
-    def __init__(self, dataset, symetric_dataset, dimension_reduction, data_whitening):
+    def __init__(
+        self, dataset, symetric_dataset, dimension_reduction, data_whitening, normalize
+    ):
         """acquire data """
         self.dataset = dataset
         self.x_train_arr = []
@@ -14,6 +16,7 @@ class preprocessing:
         self.symetric = symetric_dataset
         self.dim_reduct = dimension_reduction
         self.data_whitening = data_whitening
+        self.normalize = normalize
 
     def preprocess_mnist(self):
         print("Preprocessing the MNIST dataset...\n")
@@ -30,9 +33,10 @@ class preprocessing:
         self.x_train_arr = self.mean_subtractor(self.x_train_arr)
         self.x_test_arr = self.mean_subtractor(self.x_test_arr)
 
-        """Normalization"""
-        self.x_train_arr = self.normalizer(self.x_train_arr)
-        self.x_test_arr = self.normalizer(self.x_test_arr)
+        if self.normalize:
+            """Normalization"""
+            self.x_train_arr = self.normalizer(self.x_train_arr)
+            self.x_test_arr = self.normalizer(self.x_test_arr)
 
         """Dimensionality reduction"""
         if self.dim_reduct:

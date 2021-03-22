@@ -15,7 +15,7 @@ class Tanh(Activation):
         return grad_output * gradient
 
 
-def Sig(Activation):
+class Sig(Activation):
     def forward_propagate(self, input):
         return 1 / (1 + np.exp(-input))
 

@@ -1,4 +1,5 @@
 import numpy as np
+from time import time
 from tqdm import trange
 from Layer import Layer
 from Activation import ReLU, Sig, Tanh, Activation
@@ -47,14 +48,17 @@ class MLP:
     def fit(
         self, X, y, epoch_num, batchsize, X_test=None, y_test=None, show_progress=False
     ):
+        start_time = time()
         for epoch in range(epoch_num):
             for x_batch, y_batch in self.iterate_minibatches(
                 X, y, batchsize=batchsize, shuffle=True
             ):
                 self._fit(x_batch, y_batch)
             if show_progress:
-                pred = self.predict(X_test)
-                yield self.evaluate_acc(y_test, pred)
+                ex_time = time() - start_time
+                yield self.evaluate_acc(
+                    y_test, self.predict(X_test)
+                ), self.evaluate_acc(y, self.predict(X)), ex_time
 
     def _fit(self, X, y):
 
@@ -90,7 +94,7 @@ class MLP:
         assert len(inputs) == len(targets)
         if shuffle:
             indices = np.random.permutation(len(inputs))
-        for start_idx in trange(0, len(inputs) - batchsize + 1, batchsize):
+        for start_idx in range(0, len(inputs) - batchsize + 1, batchsize):
             if shuffle:
                 excerpt = indices[start_idx : start_idx + batchsize]
             else:
