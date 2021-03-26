@@ -86,20 +86,8 @@ def test_mlp_model(mlp, epochs, batchsize, print_lists=False):
 #  print("\n\nmlp a 2 hidden layers having 128 units with Sigmoid activation")
 #  mlp = MLP(Sig, X_train.shape[1], [128, 128])
 #  test_mlp_model(mlp, 40, 30, print_lists=True)
+# ---------------------------------------------------------------------
+# Part3.3
 
-
-preproc = preprocessing(
-    dataset=tf.keras.datasets.mnist.load_data(),
-    symetric_dataset=True,
-    dimension_reduction=False,
-    data_whitening=False,
-    normalize=False,
-)
-X_train, y_train, X_test, y_test = preproc.preprocess_mnist()
-
-
-print(
-    "\n\nmlp a 2 hidden layers having 128 units with ReLU activation (unnormalized images)"
-)
-mlp = MLP(ReLU, X_train.shape[1], [128, 128])
-test_mlp_model(mlp, 40, 30, print_lists=True)
+# ---------------------------------------------------------------------
+# Part3.4
