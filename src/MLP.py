@@ -5,6 +5,9 @@ from Layer import Layer
 from Activation import ReLU, Sig, Tanh, Activation
 from Loss import softmax_crossentropy_with_logits, grad_softmax_crossentropy_with_logits
 from HiddenLayer import HiddenLayer
+from tqdm import tqdm
+
+np.random.seed(0)
 
 
 class MLP:
@@ -49,7 +52,7 @@ class MLP:
         self, X, y, epoch_num, batchsize, X_test=None, y_test=None, show_progress=False
     ):
         start_time = time()
-        for epoch in range(epoch_num):
+        for epoch in trange(epoch_num):
             for x_batch, y_batch in self.iterate_minibatches(
                 X, y, batchsize=batchsize, shuffle=True
             ):

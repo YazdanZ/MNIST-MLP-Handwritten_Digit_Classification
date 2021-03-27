@@ -1,5 +1,7 @@
 import numpy as np
 
+np.random.seed(0)
+
 
 def softmax_crossentropy_with_logits(logits, reference_answers):
     logits_for_answers = logits[np.arange(len(logits)), reference_answers]

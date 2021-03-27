@@ -1,6 +1,8 @@
 import numpy as np
 from Layer import Layer
 
+np.random.seed(0)
+
 
 class Activation(Layer):
     pass

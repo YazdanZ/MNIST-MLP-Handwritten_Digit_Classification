@@ -7,8 +7,15 @@ from Activation import ReLU, Sig, Tanh
 from MLP import MLP
 import tensorflow as tf
 from preprocessing import preprocessing
-from visualization import plot_epoch_accuracy
+from visualization import (
+    plot_epoch_accuracy,
+    plot_depth_accuracy,
+    plot_unit_accuracy,
+    plot_activation_accuracy,
+)
 import matplotlib.pyplot as plt
+
+np.random.seed(0)
 
 
 class Preprocessing_Test:
@@ -40,7 +47,7 @@ accuracy = mlp_test_ins.test()
 print(f"Sklearn MLP with preprocessed images: {accuracy}\n")
 
 
-def test_mlp_model(mlp, epochs, batchsize, print_lists=False):
+def test_mlp_model(mlp, epochs, batchsize, print_lists=False, plot=True):
     gen = mlp.fit(X_train, y_train, epochs, batchsize, X_test, y_test, True)
     ls = list(gen)
     accuracies_test = [l[0] for l in ls]
@@ -53,41 +60,92 @@ def test_mlp_model(mlp, epochs, batchsize, print_lists=False):
             accuracy_test = accuracies_test[i]
             duration = durations[i]
             print(
-                f"epoch {epoch} - train: {accuracy_train}, test: {accuracy_test}, duration: {duration}"
+                f"epoch {epoch + 1} - train: {accuracy_train}, test: {accuracy_test}, duration: {duration}"
             )
-
-    plot_epoch_accuracy(accuracies_test, accuracies_train, durations, epochs)
+    if plot:
+        plot_epoch_accuracy(accuracies_test, accuracies_train, durations, epochs)
     train_acc = mlp.evaluate_acc(mlp.predict(X_train), y_train)
     test_acc = mlp.evaluate_acc(mlp.predict(X_test), y_test)
 
     print(f"\nTrain accuracy after {epochs} epochs: {train_acc}")
     print(f"Test accuracy after {epochs} epochs: {test_acc}")
+    return train_acc, test_acc
 
 
 # Part3.1
 # ---------------------------------------------------------------------
 #  print("\n\nmlp with no hidden layer, directly map input to output")
 #  mlp = MLP(ReLU, X_train.shape[1], [])
-#  test_mlp_model(mlp, 40, 30, print_lists=True)
+#  test_mlp_model(mlp, 51, 30, print_lists=True)  # Figure1
 #
 #  print("\n\nmlp a sigle hidden layer having 128 units with ReLU activation")
 #  mlp = MLP(ReLU, X_train.shape[1], [128])
-#  test_mlp_model(mlp, 40, 30, print_lists=True)
-
+#  test_mlp_model(mlp, 51, 30, print_lists=True)  # Figure2
+#
 #  print("\n\nmlp a 2 hidden layers having 128 units with ReLU activation")
 #  mlp = MLP(ReLU, X_train.shape[1], [128, 128])
-#  test_mlp_model(mlp, 40, 30, print_lists=True)
+#  test_mlp_model(mlp, 51, 30, print_lists=True)  # Figure3
+#  ---------------------------------------------------------------------
+#  Part3.1 extra experiements
+#  def test_depth_accuracy(depth, epochs):
+#  accuracies = []
+#  depths = range(depth)
+#  for depth in depths:
+#  mlp = MLP(ReLU, X_train.shape[1], [128] * depth)
+#  accuracies.append(test_mlp_model(mlp, epochs, 30, plot=False))
+#  plot_depth_accuracy(accuracies, depths)
+
+#  test_depth_accuracy(17, 25)  # Figure4
+
+
+#  def test_units_accuracy(units, steps, epochs):
+#  accuracies = []
+#  units = range(1, units, steps)
+#  for unit in units:
+#  mlp = MLP(ReLU, X_train.shape[1], [unit])
+#  accuracies.append(test_mlp_model(mlp, epochs, 30, plot=False))
+#  plot_unit_accuracy(accuracies, units)
+
+
+#  test_units_accuracy(220, 20, 25) # Figure5
+
+
 # ---------------------------------------------------------------------
-# Part3.2
+#  Part3.2
+#  accuracies = []
+#
+#  print("\n\nmlp a 2 hidden layers having 128 units with ReLU activation")
+#  mlp = MLP(ReLU, X_train.shape[1], [128, 128])
+#  accuracies.append(test_mlp_model(mlp, 40, 30, print_lists=True))  # Figure6
+#
 #  print("\n\nmlp a 2 hidden layers having 128 units with TanH activation")
 #  mlp = MLP(Tanh, X_train.shape[1], [128, 128])
-#  test_mlp_model(mlp, 40, 30, print_lists=True)
+#  accuracies.append(test_mlp_model(mlp, 40, 30, print_lists=True))  # Figure7
 #
 #  print("\n\nmlp a 2 hidden layers having 128 units with Sigmoid activation")
 #  mlp = MLP(Sig, X_train.shape[1], [128, 128])
-#  test_mlp_model(mlp, 40, 30, print_lists=True)
+#  accuracies.append(test_mlp_model(mlp, 40, 30, print_lists=True))  # Figure8
+#
+#  activations = ["ReLu", "TanH", "Sigmoid"]
+#  plot_activation_accuracy(accuracies, activations)  # Figure9
 # ---------------------------------------------------------------------
 # Part3.3
 
 # ---------------------------------------------------------------------
 # Part3.4
+
+preproc = preprocessing(
+    dataset=tf.keras.datasets.mnist.load_data(),
+    symetric_dataset=True,
+    dimension_reduction=False,
+    data_whitening=False,
+    normalize=False,
+)
+X_train, y_train, X_test, y_test = preproc.preprocess_mnist()
+
+
+print(
+    "\n\nmlp a 2 hidden layers having 128 units with ReLU activation (unnormalized images)"
+)
+mlp = MLP(ReLU, X_train.shape[1], [128, 128])
+test_mlp_model(mlp, 5, 30, print_lists=True)

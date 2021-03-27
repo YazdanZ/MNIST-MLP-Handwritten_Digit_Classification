@@ -1,6 +1,8 @@
 import numpy as np
 from Layer import Layer
 
+np.random.seed(0)
+
 
 class HiddenLayer(Layer):
     def __init__(self, input_units, output_units, learning_rate=0.1):

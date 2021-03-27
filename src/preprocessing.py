@@ -67,8 +67,8 @@ class preprocessing:
     def mean_subtractor(self, input_data):
         """Mean subtraction is done to
         obtain zero-centered data"""
-        float32_data = input_data.astype("float32")
-        output_data = float32_data - np.mean(float32_data)
+        data = input_data.astype("float32")
+        output_data = data - np.mean(data)
         return output_data
 
     def normalizer(self, nonNorm_data):
