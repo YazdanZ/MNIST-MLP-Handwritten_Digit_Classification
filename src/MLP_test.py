@@ -82,49 +82,118 @@ def test_mlp_model(
     return train_acc, test_acc
 
 
+# Study the effect of the learning rate on performance
+def tune_learning_rate():
+    accuracies = []
+    lrs = [0.01, 0.1, 1, 10]  # Figure10, 11, 12, 13
+    for lr in lrs:
+        print("\n\nmlp a 2 hidden layers having 128 units with ReLU activation")
+        print(f"minibatch sizes: 30, learning_rate={lr}")
+        mlp = MLP(ReLU, X_train.shape[1], [128, 128], lr=lr)
+        accuracies.append(test_mlp_model(mlp, 40, 30, print_lists=True))
+    plot_lr_accuracy(accuracies, lrs)
+
+
+# Study performance using batch sizes of different scales
+def tune_batchsize():
+    accuracies = []
+    bsizes = [10, 100, 1000]  # Fig15, 16, 17
+    for bsize in bsizes:
+        print("\n\nmlp a 2 hidden layers having 128 units with ReLU activation")
+        print(f"minibatch sizes: {bsize}, learning_rate={0.1}")
+        mlp = MLP(ReLU, X_train.shape[1], [128, 128])
+        accuracies.append(test_mlp_model(mlp, 30, bsize, print_lists=True))
+    plot_lr_accuracy(accuracies, bsizes)
+
+
+def tune_hyperparams():
+    """Find optimum learning rate and batch size for a model.
+    We only run 20 epochs for the sake of time."""
+    bsizes = [30, 50, 70, 100]
+    lrs = [0.01, 0.1]
+    accs = []
+    pairs = []
+    for bsize in bsizes:
+        for lr in lrs:
+            pairs.append((lr, bsize))
+            mlp = MLP(ReLU, X_train.shape[1], [128, 128], lr=lr)
+            _, test_acc = test_mlp_model(mlp, 20, bsize, print_lists=False, plot=False)
+            accs.append(test_acc)
+            print(f"test accuracy: {test_acc}, learning rate: {lr}, batchsize: {bsize}")
+
+    max_index = accs.index(max(accs))
+    lr, bs = pairs[max_index]
+    print(f"Best hyperparameter: learning rate = {lr}, {bs}")
+
+
+tune_learning_rate()  # Figure14
+tune_batchsize()  # Figure18
+tune_hyperparams()
+
 # Part3.1
 # ---------------------------------------------------------------------
-#  print("\n\nmlp with no hidden layer, directly map input to output")
-#  print("minibatch sizes: 30, learning_rate=0.1")
-#  mlp = MLP(ReLU, X_train.shape[1], [])
-#  test_mlp_model(mlp, 51, 30, print_lists=True)  # Figure1
-#
-#  print("\n\nmlp a sigle hidden layer having 128 units with ReLU activation")
-#  print("minibatch sizes: 30, learning_rate=0.1")
-#  mlp = MLP(ReLU, X_train.shape[1], [128])
-#  test_mlp_model(mlp, 51, 30, print_lists=True)  # Figure2
-#
-#  print("\n\nmlp a 2 hidden layers having 128 units with ReLU activation")
-#  print("minibatch sizes: 30, learning_rate=0.1")
-#  mlp = MLP(ReLU, X_train.shape[1], [128, 128])
-#  test_mlp_model(mlp, 51, 30, print_lists=True)  # Figure3
-#  ---------------------------------------------------------------------
+print("\n\nmlp with no hidden layer, directly map input to output")
+print("minibatch sizes: 30, learning_rate=0.1")
+mlp = MLP(ReLU, X_train.shape[1], [])
+test_mlp_model(mlp, 51, 30, print_lists=True)  # Figure1
+
+print("\n\nmlp a sigle hidden layer having 128 units with ReLU activation")
+print("minibatch sizes: 30, learning_rate=0.1")
+mlp = MLP(ReLU, X_train.shape[1], [128])
+test_mlp_model(mlp, 51, 30, print_lists=True)  # Figure2
+
+print("\n\nmlp a 2 hidden layers having 128 units with ReLU activation")
+print("minibatch sizes: 30, learning_rate=0.1")
+mlp = MLP(ReLU, X_train.shape[1], [128, 128])
+test_mlp_model(mlp, 51, 30, print_lists=True)  # Figure3
+
+# Study the effect of depth on performance
+def test_depth_accuracy(depth, epochs):
+    accuracies = []
+    depths = range(depth)
+    for depth in depths:
+        mlp = MLP(ReLU, X_train.shape[1], [128] * depth)
+        accuracies.append(test_mlp_model(mlp, epochs, 30, plot=False))
+    plot_depth_accuracy(accuracies, depths)
 
 
+test_depth_accuracy(17, 25)  # Figure4
+
+# Study the effect of increasing the hidden layers on performance
+def test_units_accuracy(units, steps, epochs):
+    accuracies = []
+    units = range(1, units, steps)
+    for unit in units:
+        mlp = MLP(ReLU, X_train.shape[1], [unit])
+        accuracies.append(test_mlp_model(mlp, epochs, 30, plot=False))
+    plot_unit_accuracy(accuracies, units)
+
+
+test_units_accuracy(220, 20, 25)  # Figure5
 # ---------------------------------------------------------------------
 #  Part3.2
-#  accuracies = []
-#
-#  print("\n\nmlp a 2 hidden layers having 128 units with ReLU activation")
-#  mlp = MLP(ReLU, X_train.shape[1], [128, 128])
-#  accuracies.append(test_mlp_model(mlp, 40, 30, print_lists=True))  # Figure6
-#
-#  print("\n\nmlp a 2 hidden layers having 128 units with LeakyRelu activation")
-#  mlp = MLP(LeakyRelu, X_train.shape[1], [128, 128])
-#  accuracies.append(test_mlp_model(mlp, 40, 30, print_lists=True))  # Figure19
-#
-#  print("\n\nmlp a 2 hidden layers having 128 units with TanH activation")
-#  mlp = MLP(Tanh, X_train.shape[1], [128, 128])
-#  accuracies.append(test_mlp_model(mlp, 40, 30, print_lists=True))  # Figure7
-#
-#  print("\n\nmlp a 2 hidden layers having 128 units with Sigmoid activation")
-#  mlp = MLP(Sig, X_train.shape[1], [128, 128])
-#  accuracies.append(test_mlp_model(mlp, 40, 30, print_lists=True))  # Figure8
-#
-#
-#  activations = ["ReLu", "LeakyRelu", "TanH", "Sigmoid"]
-#  title = "Accuracy of the 2 layer MLP using different activation functions"
-#  plot_activation_accuracy(accuracies, activations, title)  # Figure9
+accuracies = []
+
+print("\n\nmlp a 2 hidden layers having 128 units with ReLU activation")
+mlp = MLP(ReLU, X_train.shape[1], [128, 128])
+accuracies.append(test_mlp_model(mlp, 40, 30, print_lists=True))  # Figure6
+
+print("\n\nmlp a 2 hidden layers having 128 units with LeakyRelu activation")
+mlp = MLP(LeakyRelu, X_train.shape[1], [128, 128])
+accuracies.append(test_mlp_model(mlp, 40, 30, print_lists=True))  # Figure19
+
+print("\n\nmlp a 2 hidden layers having 128 units with TanH activation")
+mlp = MLP(Tanh, X_train.shape[1], [128, 128])
+accuracies.append(test_mlp_model(mlp, 40, 30, print_lists=True))  # Figure7
+
+print("\n\nmlp a 2 hidden layers having 128 units with Sigmoid activation")
+mlp = MLP(Sig, X_train.shape[1], [128, 128])
+accuracies.append(test_mlp_model(mlp, 40, 30, print_lists=True))  # Figure8
+
+
+activations = ["ReLu", "LeakyRelu", "TanH", "Sigmoid"]
+title = "Accuracy of the 2 layer MLP using different activation functions"
+plot_activation_accuracy(accuracies, activations, title)  # Figure9
 # ---------------------------------------------------------------------
 # Part3.3
 
@@ -149,72 +218,6 @@ def test_mlp_model(
 
 # ---------------------------------------------------------------------
 #  Extra experiements
-#  def test_depth_accuracy(depth, epochs):
-#  accuracies = []
-#  depths = range(depth)
-#  for depth in depths:
-#  mlp = MLP(ReLU, X_train.shape[1], [128] * depth)
-#  accuracies.append(test_mlp_model(mlp, epochs, 30, plot=False))
-#  plot_depth_accuracy(accuracies, depths)
-
-
-#  def test_units_accuracy(units, steps, epochs):
-#  accuracies = []
-#  units = range(1, units, steps)
-#  for unit in units:
-#  mlp = MLP(ReLU, X_train.shape[1], [unit])
-#  accuracies.append(test_mlp_model(mlp, epochs, 30, plot=False))
-#  plot_unit_accuracy(accuracies, units)
-
-
-def tune_learning_rate():
-    accuracies = []
-    lrs = [0.01, 0.1, 1, 10]  # Figure10, 11, 12, 13
-    for lr in lrs:
-        print("\n\nmlp a 2 hidden layers having 128 units with ReLU activation")
-        print(f"minibatch sizes: 30, learning_rate={lr}")
-        mlp = MLP(ReLU, X_train.shape[1], [128, 128], lr=lr)
-        accuracies.append(test_mlp_model(mlp, 40, 30, print_lists=True))
-    plot_lr_accuracy(accuracies, lrs)
-
-
-def tune_batchsize():
-    accuracies = []
-    bsizes = [10, 100, 1000]  # Fig15, 16, 17
-    for bsize in bsizes:
-        print("\n\nmlp a 2 hidden layers having 128 units with ReLU activation")
-        print(f"minibatch sizes: {bsize}, learning_rate={0.1}")
-        mlp = MLP(ReLU, X_train.shape[1], [128, 128])
-        accuracies.append(test_mlp_model(mlp, 30, bsize, print_lists=True))
-    plot_lr_accuracy(accuracies, bsizes)
-
-
-def tune_hyperparams():
-    bsizes = [30, 50, 70, 100]
-    lrs = [0.01, 0.1]
-    accs = []
-    pairs = []
-    for bsize in bsizes:
-        for lr in lrs:
-            pairs.append((lr, bsize))
-            mlp = MLP(ReLU, X_train.shape[1], [128, 128], lr=lr)
-            _, test_acc = test_mlp_model(mlp, 1, bsize, print_lists=False, plot=False)
-            accs.append(test_acc)
-            print(f"test accuracy: {test_acc}, learning rate: {lr}, batchsize: {bsize}")
-
-    max_index = accs.index(max(accs))
-    lr, bs = pairs[max_index]
-    print(f"Best hyperparameter: learning rate = {lr}, {bs}")
-
-
-tune_hyperparams()
-
-#  tune_learning_rate()  # Figure14
-
-#  tune_batchsize()  # Figure18
-
-#  test_depth_accuracy(17, 25)  # Figure4
-#  test_units_accuracy(220, 20, 25) # Figure5
 
 
 def confusion_matrix(mlp, epochs):
