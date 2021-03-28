@@ -11,27 +11,27 @@ np.random.seed(0)
 
 
 class MLP:
-    def __init__(self, activation, num_in, hidden, num_out=10):
+    def __init__(self, activation, num_in, hidden, lr=0.1, num_out=10):
         network = []
 
         # no hidden layers
         if len(hidden) == 0:
-            network.append(HiddenLayer(num_in, num_out))
+            network.append(HiddenLayer(num_in, num_out, learning_rate=lr))
 
         for index, layer in enumerate(hidden):
 
             # input layer
             if index == 0:
-                network.append(HiddenLayer(num_in, layer))
+                network.append(HiddenLayer(num_in, layer, learning_rate=lr))
                 network.append(activation())
 
             # deep layer
             if index != len(hidden) - 1:
-                network.append(HiddenLayer(layer, hidden[index + 1]))
+                network.append(HiddenLayer(layer, hidden[index + 1], learning_rate=lr))
                 network.append(activation())
             else:
                 # output layer
-                network.append(HiddenLayer(layer, num_out))
+                network.append(HiddenLayer(layer, num_out, learning_rate=lr))
 
         self.network = network
 
