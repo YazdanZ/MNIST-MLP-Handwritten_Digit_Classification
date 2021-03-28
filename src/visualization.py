@@ -82,10 +82,11 @@ def plot_lr_accuracy(accuracies, lrs):
     plt.show()
 
 
-def plot_activation_accuracy(accuracies, activations):
+def plot_activation_accuracy(accuracies, activations, title):
     ypos = np.arange(len(activations))
     plt.xticks(ypos, activations)
     plt.bar(ypos, [a[0] for a in accuracies], label="train accuracy")
     plt.bar(ypos, [a[1] for a in accuracies], label="test accuracy")
+    plt.title(title)
     plt.legend()
     plt.show()

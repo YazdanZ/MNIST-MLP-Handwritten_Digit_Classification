@@ -3,7 +3,7 @@ import numpy as np
 from sklearn.datasets import make_classification
 from sklearn.model_selection import train_test_split
 from Loss import softmax_crossentropy_with_logits, grad_softmax_crossentropy_with_logits
-from Activation import ReLU, Sig, Tanh
+from Activation import ReLU, Sig, Tanh, LeakyRelu
 from MLP import MLP
 import tensorflow as tf
 from preprocessing import preprocessing
@@ -67,9 +67,11 @@ def test_mlp_model(mlp, epochs, batchsize, print_lists=False, plot=True):
         plot_epoch_accuracy(accuracies_test, accuracies_train, durations, epochs)
     train_acc = mlp.evaluate_acc(mlp.predict(X_train), y_train)
     test_acc = mlp.evaluate_acc(mlp.predict(X_test), y_test)
+    duration = durations[-1]
 
     print(f"\nTrain accuracy after {epochs} epochs: {train_acc}")
     print(f"Test accuracy after {epochs} epochs: {test_acc}")
+    print(f"Duration of {epochs} epochs: {duration}")
     return train_acc, test_acc
 
 
@@ -100,6 +102,10 @@ def test_mlp_model(mlp, epochs, batchsize, print_lists=False, plot=True):
 #  mlp = MLP(ReLU, X_train.shape[1], [128, 128])
 #  accuracies.append(test_mlp_model(mlp, 40, 30, print_lists=True))  # Figure6
 #
+#  print("\n\nmlp a 2 hidden layers having 128 units with LeakyRelu activation")
+#  mlp = MLP(LeakyRelu, X_train.shape[1], [128, 128])
+#  accuracies.append(test_mlp_model(mlp, 40, 30, print_lists=True))  # Figure19
+#
 #  print("\n\nmlp a 2 hidden layers having 128 units with TanH activation")
 #  mlp = MLP(Tanh, X_train.shape[1], [128, 128])
 #  accuracies.append(test_mlp_model(mlp, 40, 30, print_lists=True))  # Figure7
@@ -108,8 +114,10 @@ def test_mlp_model(mlp, epochs, batchsize, print_lists=False, plot=True):
 #  mlp = MLP(Sig, X_train.shape[1], [128, 128])
 #  accuracies.append(test_mlp_model(mlp, 40, 30, print_lists=True))  # Figure8
 #
-#  activations = ["ReLu", "TanH", "Sigmoid"]
-#  plot_activation_accuracy(accuracies, activations)  # Figure9
+#
+#  activations = ["ReLu", "LeakyRelu", "TanH", "Sigmoid"]
+#  title = "Accuracy of the 2 layer MLP using different activation functions"
+#  plot_activation_accuracy(accuracies, activations, title)  # Figure9
 # ---------------------------------------------------------------------
 # Part3.3
 

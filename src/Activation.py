@@ -8,6 +8,21 @@ class Activation(Layer):
     pass
 
 
+class LeakyRelu(Activation):
+    """Based on this answer on stackoverflow:
+    https://stackoverflow.com/questions/50517545/how-do-i-implement-leaky-relu-using-numpy-functions#comment97538129_54206300"""
+
+    def __init__(self, a=0.01):
+        self.a = a
+
+    def forward_propagate(self, input):
+        return np.where(input > 0, input, input * self.a)
+
+    def backward_propagate(self, input, grad_output):
+        gradient = np.where(input > 0, 1.0, self.a)
+        return grad_output * gradient
+
+
 class Tanh(Activation):
     def forward_propagate(self, input):
         return np.tanh(input)
