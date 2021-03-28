@@ -1,6 +1,8 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
+import seaborn as sns
+from sklearn.metrics import confusion_matrix
 
 
 class visualization:
@@ -89,4 +91,14 @@ def plot_activation_accuracy(accuracies, activations, title):
     plt.bar(ypos, [a[1] for a in accuracies], label="test accuracy")
     plt.title(title)
     plt.legend()
+    plt.show()
+
+
+def plot_confusion_matrix(y_test, pred, title):
+    con_matrix = confusion_matrix(y_test, pred)
+    df_cm = pd.DataFrame(con_matrix, range(10), range(10))
+    sns.heatmap(df_cm, annot=True, cmap="crest")
+    plt.ylabel("Predicted digit")
+    plt.xlabel("True digit")
+    plt.title(title)
     plt.show()

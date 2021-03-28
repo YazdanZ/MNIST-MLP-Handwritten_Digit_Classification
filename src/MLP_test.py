@@ -13,6 +13,7 @@ from visualization import (
     plot_unit_accuracy,
     plot_activation_accuracy,
     plot_lr_accuracy,
+    plot_confusion_matrix,
 )
 import matplotlib.pyplot as plt
 
@@ -48,7 +49,9 @@ accuracy = mlp_test_ins.test()
 print(f"Sklearn MLP with preprocessed images: {accuracy}\n")
 
 
-def test_mlp_model(mlp, epochs, batchsize, print_lists=False, plot=True):
+def test_mlp_model(
+    mlp, epochs, batchsize, print_lists=False, plot=True, get_predictions=False
+):
     gen = mlp.fit(X_train, y_train, epochs, batchsize, X_test, y_test, True)
     ls = list(gen)
     accuracies_test = [l[0] for l in ls]
@@ -65,13 +68,17 @@ def test_mlp_model(mlp, epochs, batchsize, print_lists=False, plot=True):
             )
     if plot:
         plot_epoch_accuracy(accuracies_test, accuracies_train, durations, epochs)
-    train_acc = mlp.evaluate_acc(mlp.predict(X_train), y_train)
-    test_acc = mlp.evaluate_acc(mlp.predict(X_test), y_test)
+    train_pred = mlp.predict(X_train)
+    test_pred = mlp.predict(X_test)
+    train_acc = mlp.evaluate_acc(train_pred, y_train)
+    test_acc = mlp.evaluate_acc(test_pred, y_test)
     duration = durations[-1]
-
-    print(f"\nTrain accuracy after {epochs} epochs: {train_acc}")
-    print(f"Test accuracy after {epochs} epochs: {test_acc}")
-    print(f"Duration of {epochs} epochs: {duration}")
+    if print_lists:
+        print(f"\nTrain accuracy after {epochs} epochs: {train_acc}")
+        print(f"Test accuracy after {epochs} epochs: {test_acc}")
+        print(f"Duration of {epochs} epochs: {duration}")
+    if get_predictions:
+        return test_pred, train_pred
     return train_acc, test_acc
 
 
@@ -166,7 +173,7 @@ def tune_learning_rate():
     for lr in lrs:
         print("\n\nmlp a 2 hidden layers having 128 units with ReLU activation")
         print(f"minibatch sizes: 30, learning_rate={lr}")
-        mlp = MLP(ReLU, X_train.shape[1], [128, 128])
+        mlp = MLP(ReLU, X_train.shape[1], [128, 128], lr=lr)
         accuracies.append(test_mlp_model(mlp, 40, 30, print_lists=True))
     plot_lr_accuracy(accuracies, lrs)
 
@@ -182,9 +189,41 @@ def tune_batchsize():
     plot_lr_accuracy(accuracies, bsizes)
 
 
+def tune_hyperparams():
+    bsizes = [30, 50, 70, 100]
+    lrs = [0.01, 0.1]
+    accs = []
+    pairs = []
+    for bsize in bsizes:
+        for lr in lrs:
+            pairs.append((lr, bsize))
+            mlp = MLP(ReLU, X_train.shape[1], [128, 128], lr=lr)
+            _, test_acc = test_mlp_model(mlp, 1, bsize, print_lists=False, plot=False)
+            accs.append(test_acc)
+            print(f"test accuracy: {test_acc}, learning rate: {lr}, batchsize: {bsize}")
+
+    max_index = accs.index(max(accs))
+    lr, bs = pairs[max_index]
+    print(f"Best hyperparameter: learning rate = {lr}, {bs}")
+
+
+tune_hyperparams()
+
 #  tune_learning_rate()  # Figure14
 
-tune_batchsize()  # Figure18
+#  tune_batchsize()  # Figure18
 
 #  test_depth_accuracy(17, 25)  # Figure4
 #  test_units_accuracy(220, 20, 25) # Figure5
+
+
+def confusion_matrix(mlp, epochs):
+    test_prediction, train_prediction = test_mlp_model(
+        mlp, epochs, 30, print_lists=False, plot=False, get_predictions=True
+    )
+    plot_confusion_matrix(
+        y_test, test_prediction, "Test data confusion_matrix"
+    )  # Figure20
+    plot_confusion_matrix(
+        y_train, train_prediction, "Train data confusion_matrix"
+    )  # Figure21
