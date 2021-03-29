@@ -13,8 +13,10 @@ Window.size = (280, 280)
 
 
 class Classifier:
-    @staticmethod
-    def predict_input_img(img):
+    def __init__(self):
+        self.mlp = None
+
+    def predict_input_img(self, img):
         print("Fitting model...")
         preprocessing_normalized = preprocessing(
             dataset=tf.keras.datasets.mnist.load_data(),
@@ -24,32 +26,37 @@ class Classifier:
             normalize=True,
         )
         X_train, y_train, X_test, y_test = preprocessing_normalized.preprocess_mnist(
-            img
+            [img]
         )
-        mlp = MLP(ReLU, X_train.shape[1], [128, 128])
-        gen = mlp.fit(X_train, y_train, 1, 50)
-        ls = list(gen)
-        pred = mlp.predict(X_test[0])
+        if self.mlp is None:
+            print("Training the model.\nThis will only happen once.")
+            self.mlp = MLP(ReLU, X_train.shape[1], [128, 128])
+            gen = self.mlp.fit(X_train, y_train, 20, 50)
+            ls = list(gen)
+        pred = self.mlp.predict(X_test)[0]
         print(f"We believe the input digit is: {pred}")
 
 
 class Draw(Widget):
+    classifier = Classifier()
+
     def on_touch_down(self, touch):
         with self.canvas:
-            touch.ud["line"] = Line(points=(touch.x, touch.y), width=10)
+            touch.ud["line"] = Line(points=(touch.x, touch.y), width=4)
 
     def on_touch_move(self, touch):
         touch.ud["line"].points += (touch.x, touch.y)
 
     def on_touch_up(self, touch):
         print("Saving canvas...")
-        self.export_to_png("img.png")
-        img = Image.open("img.png")
+        self.export_to_png("../demo/img.png")
+        img = Image.open("../demo/img.png")
         img = img.resize((28, 28))
-        img.save("img.png")
+        img.save("../demo/img.png")
         img = np.array(img)
         img = img[:, :, 0]
-        Classifier.predict_input_img(img)
+        Draw.classifier.predict_input_img(img)
+        self.canvas.clear()
 
 
 class Application(App):

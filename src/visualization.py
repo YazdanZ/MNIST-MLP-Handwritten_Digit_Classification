@@ -90,6 +90,7 @@ def plot_vs_accuracy(accuracies, lrs, x_label):
 def plot_activation_accuracy(accuracies, activations, title):
     ypos = np.arange(len(activations))
     plt.xticks(ypos, activations)
+    plt.ylim(0.85, 1.0)
     plt.bar(ypos, [a[0] for a in accuracies], label="train accuracy")
     plt.bar(ypos, [a[1] for a in accuracies], label="test accuracy")
     plt.xlabel("Activation function")
