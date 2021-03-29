@@ -78,6 +78,7 @@ def plot_unit_accuracy(accuracies, units):
 def plot_vs_accuracy(accuracies, lrs, x_label):
     ypos = np.arange(len(lrs))
     plt.xticks(ypos, lrs)
+    plt.ylim(0.85, 1.0)
     plt.bar(ypos, [a[0] for a in accuracies], label="train accuracy")
     plt.bar(ypos, [a[1] for a in accuracies], label="test accuracy")
     plt.xlabel(x_label)

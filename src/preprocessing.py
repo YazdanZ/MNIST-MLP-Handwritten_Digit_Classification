@@ -18,10 +18,12 @@ class preprocessing:
         self.data_whitening = data_whitening
         self.normalize = normalize
 
-    def preprocess_mnist(self):
+    def preprocess_mnist(self, x=None):
         print("Preprocessing the MNIST dataset...\n")
 
         (x_train, y_train), (x_test, y_test) = self.dataset
+        if x is not None:
+            x_test = [x]
         self.x_train_arr = self.flatten_maker(x_train)
         self.x_test_arr = self.flatten_maker(x_test)
 

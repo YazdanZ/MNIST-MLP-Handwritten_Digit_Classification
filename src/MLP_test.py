@@ -125,13 +125,13 @@ def tune_hyperparams(hidden_layers):
         for lr in lrs:
             pairs.append((lr, bsize))
             mlp = MLP(ReLU, X_train.shape[1], hidden_layers, lr=lr)
-            _, test_acc = test_mlp_model(mlp, 20, bsize, plot=False)
+            _, test_acc = test_mlp_model(mlp, 10, bsize, plot=False)
             accs.append(test_acc)
             print(f"test accuracy: {test_acc}, learning rate: {lr}, batchsize: {bsize}")
 
     max_index = accs.index(max(accs))
     lr, bs = pairs[max_index]
-    print(f"Best hyperparameter: learning rate = {lr}, {bs}")
+    print(f"Best hyperparameter: learning rate: {lr}, minibatch size: {bs}")
     return lr, bs
 
 
@@ -163,14 +163,15 @@ def test_depth_accuracy(depth, epochs):
     accuracies = []
     depths = range(depth)
     for depth in depths:
+        print(f"MLP depth: {depth}")
         mlp = MLP(ReLU, X_train.shape[1], [128] * depth)
         accuracies.append(test_mlp_model(mlp, epochs, 30, plot=False))
     plot_depth_accuracy(accuracies, depths)
 
 
-test_depth_accuracy(17, 25)  # Figure4
+test_depth_accuracy(15, 20)  # Figure4
 
-# Study the effect of increasing the hidden layers on performance
+# Study the effect of increasing the hidden layer units on performance
 def test_units_accuracy(units, steps, epochs):
     accuracies = []
     units = range(1, units, steps)
