@@ -12,7 +12,7 @@ from visualization import (
     plot_depth_accuracy,
     plot_unit_accuracy,
     plot_activation_accuracy,
-    plot_lr_accuracy,
+    plot_vs_accuracy,
     plot_confusion_matrix,
 )
 import matplotlib.pyplot as plt
@@ -50,7 +50,13 @@ print(f"Sklearn MLP with preprocessed images: {accuracy}\n")
 
 
 def test_mlp_model(
-    mlp, epochs, batchsize, print_lists=False, plot=True, get_predictions=False
+    mlp,
+    epochs,
+    batchsize,
+    print_lists=False,
+    plot=True,
+    get_predictions=False,
+    print_results=True,
 ):
     gen = mlp.fit(X_train, y_train, epochs, batchsize, X_test, y_test, True)
     ls = list(gen)
@@ -73,7 +79,7 @@ def test_mlp_model(
     train_acc = mlp.evaluate_acc(train_pred, y_train)
     test_acc = mlp.evaluate_acc(test_pred, y_test)
     duration = durations[-1]
-    if print_lists:
+    if print_results:
         print(f"\nTrain accuracy after {epochs} epochs: {train_acc}")
         print(f"Test accuracy after {epochs} epochs: {test_acc}")
         print(f"Duration of {epochs} epochs: {duration}")
@@ -85,15 +91,16 @@ def test_mlp_model(
 # Study the effect of the learning rate on performance
 def tune_learning_rate():
     accuracies = []
-    lrs = [0.01, 0.1, 1, 10]  # Figure10, 11, 12, 13
+    lrs = [0.001, 0.01, 0.1]  # Figure10, 11, 12
     for lr in lrs:
         print("\n\nmlp a 2 hidden layers having 128 units with ReLU activation")
         print(f"minibatch sizes: 30, learning_rate={lr}")
         mlp = MLP(ReLU, X_train.shape[1], [128, 128], lr=lr)
-        accuracies.append(test_mlp_model(mlp, 40, 30, print_lists=True))
-    plot_lr_accuracy(accuracies, lrs)
+        accuracies.append(test_mlp_model(mlp, 30, 30))
+    plot_vs_accuracy(accuracies, lrs, "Learning rate")
 
 
+tune_learning_rate()  # Figure13
 # Study performance using batch sizes of different scales
 def tune_batchsize():
     accuracies = []
@@ -102,13 +109,14 @@ def tune_batchsize():
         print("\n\nmlp a 2 hidden layers having 128 units with ReLU activation")
         print(f"minibatch sizes: {bsize}, learning_rate={0.1}")
         mlp = MLP(ReLU, X_train.shape[1], [128, 128])
-        accuracies.append(test_mlp_model(mlp, 30, bsize, print_lists=True))
-    plot_lr_accuracy(accuracies, bsizes)
+        accuracies.append(test_mlp_model(mlp, 30, bsize))
+    plot_vs_accuracy(accuracies, bsizes, "Batch size")
 
 
-def tune_hyperparams():
+def tune_hyperparams(hidden_layers):
     """Find optimum learning rate and batch size for a model.
-    We only run 20 epochs for the sake of time."""
+    We only run 20 epochs to also check for faster convergence."""
+    print("Tuning hyperparameters")
     bsizes = [30, 50, 70, 100]
     lrs = [0.01, 0.1]
     accs = []
@@ -116,36 +124,39 @@ def tune_hyperparams():
     for bsize in bsizes:
         for lr in lrs:
             pairs.append((lr, bsize))
-            mlp = MLP(ReLU, X_train.shape[1], [128, 128], lr=lr)
-            _, test_acc = test_mlp_model(mlp, 20, bsize, print_lists=False, plot=False)
+            mlp = MLP(ReLU, X_train.shape[1], hidden_layers, lr=lr)
+            _, test_acc = test_mlp_model(mlp, 20, bsize, plot=False)
             accs.append(test_acc)
             print(f"test accuracy: {test_acc}, learning rate: {lr}, batchsize: {bsize}")
 
     max_index = accs.index(max(accs))
     lr, bs = pairs[max_index]
     print(f"Best hyperparameter: learning rate = {lr}, {bs}")
+    return lr, bs
 
 
 tune_learning_rate()  # Figure14
 tune_batchsize()  # Figure18
-tune_hyperparams()
 
 # Part3.1
 # ---------------------------------------------------------------------
 print("\n\nmlp with no hidden layer, directly map input to output")
-print("minibatch sizes: 30, learning_rate=0.1")
-mlp = MLP(ReLU, X_train.shape[1], [])
-test_mlp_model(mlp, 51, 30, print_lists=True)  # Figure1
+lr, bs = tune_hyperparams([])
+print(f"minibatch sizes: {bs}, learning_rate: {lr}")
+mlp = MLP(ReLU, X_train.shape[1], [], lr=lr)
+test_mlp_model(mlp, 51, bs, print_lists=True)  # Figure1
 
 print("\n\nmlp a sigle hidden layer having 128 units with ReLU activation")
-print("minibatch sizes: 30, learning_rate=0.1")
-mlp = MLP(ReLU, X_train.shape[1], [128])
-test_mlp_model(mlp, 51, 30, print_lists=True)  # Figure2
+lr, bs = tune_hyperparams([128])
+print(f"minibatch sizes: {bs}, learning_rate: {lr}")
+mlp = MLP(ReLU, X_train.shape[1], [128], lr=lr)
+test_mlp_model(mlp, 51, bs, print_lists=True)  # Figure2
 
 print("\n\nmlp a 2 hidden layers having 128 units with ReLU activation")
-print("minibatch sizes: 30, learning_rate=0.1")
-mlp = MLP(ReLU, X_train.shape[1], [128, 128])
-test_mlp_model(mlp, 51, 30, print_lists=True)  # Figure3
+lr, bs = tune_hyperparams([128, 128])
+print(f"minibatch sizes: {bs}, learning_rate: {lr}")
+mlp = MLP(ReLU, X_train.shape[1], [128, 128], lr=lr)
+test_mlp_model(mlp, 51, bs, print_lists=True)  # Figure3
 
 # Study the effect of depth on performance
 def test_depth_accuracy(depth, epochs):
