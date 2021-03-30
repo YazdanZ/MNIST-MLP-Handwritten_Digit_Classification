@@ -3,6 +3,7 @@ from kivy.uix.widget import Widget
 from kivy.graphics import Line, Color
 from kivy.core.window import Window
 from PIL import Image
+import matplotlib.pyplot as plt
 import numpy as np
 from Activation import ReLU, Sig, Tanh, LeakyRelu
 from MLP import MLP
@@ -17,7 +18,8 @@ class Classifier:
         self.mlp = None
 
     def predict_input_img(self, img):
-        print("Fitting model...")
+        plt.imshow(img, cmap="hot", interpolation="nearest")
+        plt.show()
         preprocessing_normalized = preprocessing(
             dataset=tf.keras.datasets.mnist.load_data(),
             symetric_dataset=True,
@@ -33,8 +35,8 @@ class Classifier:
             self.mlp = MLP(ReLU, X_train.shape[1], [128, 128])
             gen = self.mlp.fit(X_train, y_train, 20, 50)
             ls = list(gen)
-        pred = self.mlp.predict(X_test)[0]
-        print(f"We believe the input digit is: {pred}")
+        pred = self.mlp.predict(X_test)
+        print(f"Our MultiLayer Perceptron thinks the digit is: {pred[0]}")
 
 
 class Draw(Widget):
@@ -42,7 +44,7 @@ class Draw(Widget):
 
     def on_touch_down(self, touch):
         with self.canvas:
-            touch.ud["line"] = Line(points=(touch.x, touch.y), width=4)
+            touch.ud["line"] = Line(points=(touch.x, touch.y), width=1)
 
     def on_touch_move(self, touch):
         touch.ud["line"].points += (touch.x, touch.y)
