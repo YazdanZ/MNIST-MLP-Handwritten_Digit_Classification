@@ -9,6 +9,8 @@ from Activation import ReLU, Sig, Tanh, LeakyRelu
 from MLP import MLP
 import tensorflow as tf
 from preprocessing import preprocessing
+import pyfiglet
+import os
 
 Window.size = (280, 280)
 
@@ -33,10 +35,12 @@ class Classifier:
         if self.mlp is None:
             print("Training the model.\nThis will only happen once.")
             self.mlp = MLP(ReLU, X_train.shape[1], [128, 128])
-            gen = self.mlp.fit(X_train, y_train, 20, 50)
+            gen = self.mlp.fit(X_train, y_train, 25, 50)
             ls = list(gen)
         pred = self.mlp.predict(X_test)
         print(f"Our MultiLayer Perceptron thinks the digit is: {pred[0]}")
+        ascii_banner = pyfiglet.figlet_format(str(pred[0]))
+        print(ascii_banner)
 
 
 class Draw(Widget):
@@ -44,6 +48,7 @@ class Draw(Widget):
 
     def on_touch_down(self, touch):
         with self.canvas:
+            os.system("cls" if os.name == "nt" else "clear")
             touch.ud["line"] = Line(points=(touch.x, touch.y), width=1)
 
     def on_touch_move(self, touch):
