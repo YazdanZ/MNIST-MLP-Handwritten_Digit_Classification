@@ -73,7 +73,7 @@ class MLP:
         logits = layer_activations[-1]
 
         # Compute the loss and the initial gradient
-        loss = softmax_crossentropy_with_logits(logits, y)
+        #  loss = softmax_crossentropy_with_logits(logits, y)
         loss_grad = grad_softmax_crossentropy_with_logits(logits, y)
 
         # Propagate gradients through the network
@@ -85,7 +85,7 @@ class MLP:
                 layer_inputs[layer_index], loss_grad
             )  # grad w.r.t. input, also weight updates
 
-        return np.mean(loss)
+        #  return np.mean(loss)
 
     def predict(self, X):
 

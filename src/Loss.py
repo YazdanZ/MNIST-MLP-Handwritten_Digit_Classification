@@ -1,4 +1,6 @@
 import numpy as np
+from scipy.special import softmax
+
 
 np.random.seed(0)
 
@@ -15,6 +17,7 @@ def grad_softmax_crossentropy_with_logits(logits, reference_answers):
     ones_for_answers = np.zeros_like(logits)
     ones_for_answers[np.arange(len(logits)), reference_answers] = 1
 
-    softmax = np.exp(logits) / np.exp(logits).sum(axis=-1, keepdims=True)
+    softmax = np.exp(logits - np.max(logits))
+    softmax = softmax / np.sum(softmax, axis=-1, keepdims=True)
 
     return (-ones_for_answers + softmax) / logits.shape[0]
