@@ -239,13 +239,19 @@ test_mlp_model(mlp, 51, bs, print_lists=True)
 #  Extra experiements
 
 
-def confusion_matrix(mlp, epochs):
+def confusion_matrix(mlp, epochs, bs):
     test_prediction, train_prediction = test_mlp_model(
         mlp, epochs, 30, print_lists=False, plot=False, get_predictions=True
     )
     plot_confusion_matrix(
         y_test, test_prediction, "Test data confusion_matrix"
-    )  # Figure20
+    )  
     plot_confusion_matrix(
         y_train, train_prediction, "Train data confusion_matrix"
-    )  # Figure21
+    )  
+
+print("\n\nmlp a 2 hidden layers having 128 units with ReLU activation")
+lr, bs = 0.1, 50
+print(f"minibatch sizes: {bs}, learning_rate: {lr}")
+mlp = MLP(ReLU, X_train.shape[1], [128, 128], lr=lr)
+confusion_matrix(mlp, 51, bs)
