@@ -119,7 +119,7 @@ def tune_batchsize():
     plot_vs_accuracy(accuracies, bsizes, "Batch size")
 
 
-def tune_hyperparams(hidden_layers):
+def tune_hyperparams(hidden_layers, lrs=[0.01, 0.1], bsizes=[30, 50, 70, 100]):
     """Find optimum learning rate and batch size for a model.
     We only run 20 epochs to also check for faster convergence."""
     print("Tuning hyperparameters")
@@ -218,22 +218,23 @@ plot_activation_accuracy(accuracies, activations, title)  # Figure9
 # ---------------------------------------------------------------------
 # Part3.4
 
-#  preproc = preprocessing(
-#  dataset=tf.keras.datasets.mnist.load_data(),
-#  symetric_dataset=True,
-#  dimension_reduction=False,
-#  data_whitening=False,
-#  normalize=False,
-#  )
-#  X_train, y_train, X_test, y_test = preproc.preprocess_mnist()
-#
-#
-#  print(
-#  "\n\nmlp a 2 hidden layers having 128 units with ReLU activation (unnormalized images)"
-#  )
-#  mlp = MLP(ReLU, X_train.shape[1], [128, 128])
-#  test_mlp_model(mlp, 5, 30, print_lists=True)
+preproc = preprocessing(
+    dataset=tf.keras.datasets.mnist.load_data(),
+    symetric_dataset=True,
+    dimension_reduction=False,
+    data_whitening=False,
+    normalize=False,
+)
+X_train, y_train, X_test, y_test = preproc.preprocess_mnist()
 
+
+print(
+    "\n\nmlp a 2 hidden layers having 128 units with ReLU activation (unnormalized images)"
+)
+lr, bs = tune_hyperparams([128, 128], lrs=[0.001, 0.01])
+print(f"minibatch sizes: {bs}, learning_rate: {lr}")
+mlp = MLP(ReLU, X_train.shape[1], [128, 128], lr=lr)
+test_mlp_model(mlp, 51, bs, print_lists=True) 
 # ---------------------------------------------------------------------
 #  Extra experiements
 
