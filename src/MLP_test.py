@@ -14,6 +14,7 @@ from visualization import (
     plot_activation_accuracy,
     plot_vs_accuracy,
     plot_confusion_matrix,
+    plot_class_distrib,
 )
 import matplotlib.pyplot as plt
 
@@ -42,7 +43,12 @@ preprocessing_normalized = preprocessing(
     data_whitening=False,
     normalize=True,
 )
-X_train, y_train, X_test, y_test = preprocessing_normalized.preprocess_mnist()
+X_train, y_train, X_test, y_test = preprocessing_normalized.preprocess_mnist(
+    show_digits=True
+)
+
+plot_class_distrib(y_train, "Train data distribution")
+plot_class_distrib(y_test, "Test data distribution")
 
 mlp_test_ins = Preprocessing_Test(X_train, y_train, X_test, y_test)
 accuracy = mlp_test_ins.test()

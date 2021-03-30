@@ -18,10 +18,25 @@ class preprocessing:
         self.data_whitening = data_whitening
         self.normalize = normalize
 
-    def preprocess_mnist(self, img=None):
+    def preprocess_mnist(self, img=None, show_digits=False):
         print("Preprocessing the MNIST dataset...\n")
 
         (x_train, y_train), (x_test, y_test) = self.dataset
+
+        if show_digits:
+            width = 5
+            height = 5
+            rows = 2
+            cols = 5
+            axes = []
+            fig = plt.figure()
+
+            imgs = x_train[:10]
+            for a in range(rows * cols):
+                axes.append(fig.add_subplot(rows, cols, a + 1))
+                plt.imshow(imgs[a])
+            fig.tight_layout()
+            plt.show()
 
         if img is not None:
             x_test = img
