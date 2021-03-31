@@ -56,13 +56,13 @@ print(f"Sklearn MLP with preprocessed images: {accuracy}\n")
 
 
 def test_mlp_model(
-    mlp,
-    epochs,
-    batchsize,
-    print_lists=False,
-    plot=True,
-    get_predictions=False,
-    print_results=True,
+        mlp,
+        epochs,
+        batchsize,
+        print_lists=False,
+        plot=True,
+        get_predictions=False,
+        print_results=True,
 ):
     gen = mlp.fit(X_train, y_train, epochs, batchsize, X_test, y_test, True)
     ls = list(gen)
@@ -107,6 +107,8 @@ def tune_learning_rate():
 
 
 tune_learning_rate()  # Figure13
+
+
 # Study performance using batch sizes of different scales
 def tune_batchsize():
     accuracies = []
@@ -164,6 +166,7 @@ print(f"minibatch sizes: {bs}, learning_rate: {lr}")
 mlp = MLP(ReLU, X_train.shape[1], [128, 128], lr=lr)
 test_mlp_model(mlp, 51, bs, print_lists=True)  # Figure3
 
+
 # Study the effect of depth on performance
 def test_depth_accuracy(depth, epochs):
     accuracies = []
@@ -176,6 +179,7 @@ def test_depth_accuracy(depth, epochs):
 
 
 test_depth_accuracy(15, 20)  # Figure4
+
 
 # Study the effect of increasing the hidden layer units on performance
 def test_units_accuracy(units, steps, epochs):
@@ -208,7 +212,6 @@ print("\n\nmlp a 2 hidden layers having 128 units with Sigmoid activation")
 mlp = MLP(Sig, X_train.shape[1], [128, 128])
 accuracies.append(test_mlp_model(mlp, 40, 30, print_lists=True))  # Figure8
 
-
 activations = ["ReLu", "LeakyRelu", "TanH", "Sigmoid"]
 title = "Accuracy of the 2 layer MLP using different activation functions"
 plot_activation_accuracy(accuracies, activations, title)  # Figure9
@@ -217,7 +220,9 @@ plot_activation_accuracy(accuracies, activations, title)  # Figure9
 
 # ---------------------------------------------------------------------
 # Part3.4
-
+mlp = MLP(ReLU, X_train.shape[1], [128, 128], lr=lr, regularization=True)
+test_mlp_model(mlp, 51, bs, print_lists=True)
+# _______________________________________________________________________
 preproc = preprocessing(
     dataset=tf.keras.datasets.mnist.load_data(),
     symetric_dataset=True,
@@ -227,14 +232,15 @@ preproc = preprocessing(
 )
 X_train, y_train, X_test, y_test = preproc.preprocess_mnist()
 
-
 print(
     "\n\nmlp a 2 hidden layers having 128 units with ReLU activation (unnormalized images)"
 )
 lr, bs = tune_hyperparams([128, 128], lrs=[0.001, 0.01])
 print(f"minibatch sizes: {bs}, learning_rate: {lr}")
 mlp = MLP(ReLU, X_train.shape[1], [128, 128], lr=lr)
-test_mlp_model(mlp, 51, bs, print_lists=True) 
+test_mlp_model(mlp, 51, bs, print_lists=True)
+
+
 # ---------------------------------------------------------------------
 #  Extra experiements
 
@@ -245,10 +251,11 @@ def confusion_matrix(mlp, epochs, bs):
     )
     plot_confusion_matrix(
         y_test, test_prediction, "Test data confusion_matrix"
-    )  
+    )
     plot_confusion_matrix(
         y_train, train_prediction, "Train data confusion_matrix"
-    )  
+    )
+
 
 print("\n\nmlp a 2 hidden layers having 128 units with ReLU activation")
 lr, bs = 0.1, 50

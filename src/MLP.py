@@ -3,7 +3,7 @@ from time import time
 from tqdm import trange
 from Layer import Layer
 from Activation import ReLU, Sig, Tanh, Activation
-from Loss import softmax_crossentropy_with_logits, grad_softmax_crossentropy_with_logits
+from Loss import softmax_crossentropy_with_logits, grad_softmax_crossentropy_with_logits, L2_regularization_loss
 from HiddenLayer import HiddenLayer
 from tqdm import tqdm
 
@@ -11,7 +11,7 @@ np.random.seed(0)
 
 
 class MLP:
-    def __init__(self, activation, num_in, hidden, lr=0.1, num_out=10):
+    def __init__(self, activation, num_in, hidden, lr=0.1, num_out=10, regularization=True):
         network = []
 
         # no hidden layers
@@ -34,6 +34,9 @@ class MLP:
                 network.append(HiddenLayer(layer, num_out, learning_rate=lr))
 
         self.network = network
+        self.num_in = num_in
+        self.num_out = num_out
+        self.regularization = regularization
 
     def forward_propagate(self, X):
         activations = []
@@ -49,12 +52,12 @@ class MLP:
         return activations
 
     def fit(
-        self, X, y, epoch_num, batchsize, X_test=None, y_test=None, show_progress=False
+            self, X, y, epoch_num, batchsize, X_test=None, y_test=None, show_progress=False
     ):
         start_time = time()
         for epoch in trange(epoch_num):
             for x_batch, y_batch in self.iterate_minibatches(
-                X, y, batchsize=batchsize, shuffle=True
+                    X, y, batchsize=batchsize, shuffle=True
             ):
                 self._fit(x_batch, y_batch)
             if show_progress:
@@ -68,14 +71,17 @@ class MLP:
         # Get the layer activations
         layer_activations = self.forward_propagate(X)
         layer_inputs = [
-            X
-        ] + layer_activations  # layer_input[i] is an input for network[i]
+                           X
+                       ] + layer_activations  # layer_input[i] is an input for network[i]
         logits = layer_activations[-1]
 
         # Compute the loss and the initial gradient
         #  loss = softmax_crossentropy_with_logits(logits, y)
         loss_grad = grad_softmax_crossentropy_with_logits(logits, y)
-
+        hidden_layer_ins = HiddenLayer(self.num_in, self.num_out)
+        if self.regularization:
+            loss_grad = loss_grad + L2_regularization_loss(hidden_layer_ins.weights, hidden_layer_ins.biases,
+                                                           lambd=1, y=y)
         # Propagate gradients through the network
         # Reverse propogation as this is backprop
         for layer_index in range(len(self.network))[::-1]:
@@ -99,7 +105,7 @@ class MLP:
             indices = np.random.permutation(len(inputs))
         for start_idx in range(0, len(inputs) - batchsize + 1, batchsize):
             if shuffle:
-                excerpt = indices[start_idx : start_idx + batchsize]
+                excerpt = indices[start_idx: start_idx + batchsize]
             else:
                 excerpt = slice(start_idx, start_idx + batchsize)
             yield inputs[excerpt], targets[excerpt]
