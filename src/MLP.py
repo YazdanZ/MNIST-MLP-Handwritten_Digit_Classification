@@ -67,7 +67,7 @@ class MLP:
                 ), self.evaluate_acc(y, self.predict(X)), ex_time
 
     def _fit(self, X, y):
-
+        hidden_layer_ins = HiddenLayer(self.num_in, self.num_out)
         # Get the layer activations
         layer_activations = self.forward_propagate(X)
         layer_inputs = [
@@ -76,12 +76,9 @@ class MLP:
         logits = layer_activations[-1]
 
         # Compute the loss and the initial gradient
-        #  loss = softmax_crossentropy_with_logits(logits, y)
+        loss = softmax_crossentropy_with_logits(logits, y)
         loss_grad = grad_softmax_crossentropy_with_logits(logits, y)
-        hidden_layer_ins = HiddenLayer(self.num_in, self.num_out)
-        if self.regularization:
-            loss_grad = loss_grad + L2_regularization_loss(hidden_layer_ins.weights, hidden_layer_ins.biases,
-                                                           lambd=1, y=y)
+
         # Propagate gradients through the network
         # Reverse propogation as this is backprop
         for layer_index in range(len(self.network))[::-1]:
@@ -90,8 +87,10 @@ class MLP:
             loss_grad = layer.backward_propagate(
                 layer_inputs[layer_index], loss_grad
             )  # grad w.r.t. input, also weight updates
+        if self.regularization:
+            loss = loss + L2_regularization_loss(hidden_layer_ins.weights, hidden_layer_ins.biases, lambd=1, y=y)
 
-        #  return np.mean(loss)
+        return np.mean(loss)
 
     def predict(self, X):
 
