@@ -1,0 +1,77 @@
+\documentclass[10pt]{article}
+\usepackage[margin = 0.5in]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage{blindtext}
+\usepackage{graphicx}
+\usepackage{multirow}
+\usepackage{subfig}
+\usepackage[utf8]{inputenc}
+\graphicspath{ {./images/} }
+\usepackage{biblatex}
+
+\begin{document}
+
+\title{MiniProject 3}
+\author{
+    Seyed Yazdan Zinati
+    \and
+    SeyedBehnam Mashari
+    \and
+    Mohammadhadi Foroutan
+}
+
+\maketitle
+
+\begin{abstract}
+\end{abstract}
+
+\section{Introduction}
+
+
+
+\section{Datasets}
+
+
+% \begin{figure}[h]
+% \centering
+% \subfloat[\centering Postive reviews]{{\includegraphics[width=7.8cm]{Fig7} }}%
+% \quad
+% \subfloat[\centering Negative reviews]{{\includegraphics[width=7.8cm]{Fig8} }}%
+% \label{fig:wordcloud}%
+% \caption{IMDb reviews sentiment wordclouds}%
+% \end{figure}
+% \begin{figure}[h]
+% \centering
+% \subfloat[\centering]{{\includegraphics[height=4.95cm]{Fig1} }}%
+% \quad
+% \subfloat[\centering]{{\includegraphics[height=4.96cm]{Fig2} }}%
+% \label{fig:wordcloud}%
+% \caption{IMDb reviews dataset before (a) and after (b) feature engineering and removing stopwords}%
+% \end{figure}
+
+
+
+\section{Results}
+We implement a Multi-Layer Perceptron (MLP) from scratch. The number of input, output, and hidden layer units, as well as the number of hidden layers, can be configured. As the input to the MLP is a flattened $28\times28$ two-dimensional array, we configure the MLP to take 784 ($28\times28$) input units. We are classifying digits 0-9, thus we configure the MLP to have 10 output units.
+For the MLP to learn non-linear decision boundaries, we introduce non-linearity to our network by implementing four activation functions (Sigmoid, TanH, ReLU, and Leaky ReLU).
+We use mini-batch stochastic gradient descent as the optimization algorithm in our backpropagation. Additionally, to tackle the problem of exploding or vanishing gradients in our network, we assure equal variance between layers using Xavier initialization to initialize weights in our deep layers.
+
+
+
+As mentioned previously, as part of the preprocessing of the dataset, we normalize images. To study the effect of training the MLP using unnormalized images pn accuracy, we use the previously described two-layer MLP with ReLU activation.
+
+Running the experiment using unnormalized images pointed out the numerical instability in our implementation of the loss and activation functions. Due to these functions involving many exponential functions, large unnormalized inputs caused errors such as overflows. After applying the appropriate fixes to ensure numerical stability with unnormalized images, we ran the experiment. Similar to the previous experiment, we tune the minibatch size and learning rate hyperparameters before running the experiment.
+Contrary to the MLP trained using normalized images, the MLP trained using unnormalized images failed to converge under a reasonable number of epochs with a learning rate of 0.1. Interestingly, it performed best when using a smaller learning rate of 0.001. The plot of train and test performances of the MLP trained with unnormalized images is illustrated in Figure xxx. We can see that the MLP trained using unnormalized images not only takes a longer time to converge but also settles at a smaller train and test accuracy of 99\% and 95\% compared to the MLP trained using normalized images with train and test accuracies of 100\% and 98\%.
+
+An essential reason we achieve a superior result when normalizing the input to the MLP is that the large difference in magnitude of inputs causes the weights associated with some inputs to be updated faster than other ones, thus negatively affecting the learning in our network. Normalization thus deals with this problem by scaling the input. Moreover, according to [xxx], the learning speed is proportional to the input magnitude which confirms our observation.
+
+To make use of all of our findings, we create a graphical user interface and integrate into it our most performant model. This GUI accepts mouse input to draw a digit on the canvas and identifies the drawn digit. The GUI can be launched by running \verb+gui.py+. Demonstrations of this program can be found in the submitted \verb+demo+ folder.
+
+\section{Discussion and Conclusion}
+
+\section{Statement of Contribution}
+
+\newpage
+\begin{thebibliography}{widest entry}
+\end{thebibliography}
+\end{document}
