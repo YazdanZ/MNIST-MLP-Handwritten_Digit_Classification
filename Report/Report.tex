@@ -38,6 +38,8 @@ We implement a Multi-Layer Perceptron (MLP) from scratch. The number of input, o
 For the MLP to learn non-linear decision boundaries, we introduce non-linearity to our network by implementing four activation functions (Sigmoid, TanH, ReLU, and Leaky ReLU).
 We use mini-batch stochastic gradient descent as the optimization algorithm in our backpropagation. Additionally, to tackle the problem of exploding or vanishing gradients in our network, we assure equal variance between layers using Xavier initialization to initialize weights in our deep layers. We follow tutorials [1, 2, 3] in implementing parts of the Multilayer Perceptron.
 
+\subsection{Network Depth and Number of Neurons in the Hidden Layer}
+
 We run three experiments with three different models and plot the train and test accuracies as a function of epochs. For the first model, we create an MLP with no hidden layers that directly maps the inputs
 to outputs. The second model contains a single hidden layer having 128 units and ReLU activations. The third model MLP is similar to the second one with one additional 128 unit hidden layer. Before running each experiment, we tune model hyperparameters including batch size and learning rate by performing a grid search. The details of this process and results can be found in the submitted notebook. The results of our experiments can be found in Figure \ref{AccuracyvsEpochs}.
 
@@ -70,18 +72,22 @@ The network containing a single hidden layer offers great accuracy with low time
     \label{AccuracyvsEpochs}
 \end{figure}
 
+\subsection{Non-linearity and Activation Functions}
+In this part, we evaluate the performance of an MLP containing two hidden layers, each having 128 neurons using different four activation functions (Sigmoid, TanH, ReLU, LeakyReLU) after training them for 40 epochs. The results of this experiment are shown in Figure 3. As mentioned previously, we need activation functions to introduce non-linearity to the neural network and to be able to create a universal approximator.
 \begin{figure}[h]
     \centering
-    \subfloat[\centering No hidden layers]{{\includegraphics[width=6cm, height=4.2cm]{F7} }}%
+    \subfloat[\centering Comparison of the MLP accuracy using different activation functions]{{\includegraphics[width=6cm, height=4.2cm]{F7} }}%
     \quad
-    \subfloat[\centering One 128-unit hidden layer with ReLU activation]{{\includegraphics[width=5.9cm]{F8} }}
+    \subfloat[\centering Performance of the MLP using Sigmoid activation]{{\includegraphics[width=5.9cm]{F8} }}
     \quad
-    \subfloat[\centering Two 128-unit hidden layers with ReLU activation]{{\includegraphics[width=5.9cm]{F9} }}%
-    \caption{Test and train performance as a function of training epochs}%
+    \subfloat[\centering Performance of the MLP using TanH activation]{{\includegraphics[width=5.9cm]{F9} }}%
+    \caption{}%
     \label{AccuracyvsEpochs}
-\end{figure}
-\subsection{aaa}
 
+\end{figure}
+We achieve the highest final test accuracy using ReLU, followed closely by LeakyReLU with 98.4\% and 98.3\% accuracy. TanH comes at third place with a test accuracy of 98.1\%, closely followed by the Sigmoid activation with 98.0\% test accuracy. Our results conform to the theory as the sigmoid function, which performs the worst in our experiment is prone to vanishing gradient during which the learning is minimal. It can also be concluded from Figure 3 (b) that the model using sigmoid activation converges slower compared to TanH or ReLU activations. Similar to the Sigmoid activation the Hyperbolic Tangent activation is also prone to vanishing gradient. However, the derivative is steeper compared to the sigmoid function due to being defined between -1 and 1 (instead of 0 and 1). The TanH activation function also has the worst time complexity among activation functions. It should be noted that initializing weights using Xavier initialization has reduced the problem with vanishing gradients. The ReLU activation function performs the best with the smallest time complexity and is not prone to vanishing gradients. ReLU slightly outperformed LeakyReLU, most probably due to not facing the dying ReLU problem during the learning process and randomness.
+\subsection{L2 Regularization (Weight Decay)}
+\subsection{Normalization}
 As mentioned previously, as part of the preprocessing of the dataset, we normalize images. To study the effect of training the MLP using unnormalized images pn accuracy, we use the previously described two-layer MLP with ReLU activation.
 
 Running the experiment using unnormalized images pointed out the numerical instability in our implementation of the loss and activation functions. Due to these functions involving many exponential functions, large unnormalized inputs caused errors such as overflows. After applying the appropriate fixes to ensure numerical stability with unnormalized images, we ran the experiment. Similar to the previous experiment, we tune the minibatch size and learning rate hyperparameters before running the experiment.
@@ -105,5 +111,6 @@ To make use of all of our findings, we create a graphical user interface and int
     % \bibitem[3]{} V. Valkov, “Creating a Neural Network from Scratch - TensorFlow for Hackers (Part IV),” Medium, 20-Jun-2018. [Online]. Available: https://medium.com/@curiousily/tensorflow-for-hackers-part-iv-neural-network-from-scratch-1a4f504dfa8. [Accessed: 31-Mar-2021].
     % \bibitem[4]{} G. Cybenko, “Approximation by superpositions of a sigmoidal function,” Mathematics of Control, Signals, and Systems, vol. 2, no. 4, pp. 303–314, 1989.
     % \bibitem[5]{} K. Hornik, “Approximation capabilities of multilayer feedforward networks,” Neural Networks, vol. 4, no. 2, pp. 251–257, 1991.
+    % \bibitem[6]{} T. Szandała, “Review and Comparison of Commonly Used Activation Functions for Deep Neural Networks,” Bio-inspired Neurocomputing, pp. 203–224, 2020.
 \end{thebibliography}
 \end{document}
