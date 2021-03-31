@@ -32,31 +32,55 @@
 \section{Datasets}
 
 
-% \begin{figure}[h]
-% \centering
-% \subfloat[\centering Postive reviews]{{\includegraphics[width=7.8cm]{Fig7} }}%
-% \quad
-% \subfloat[\centering Negative reviews]{{\includegraphics[width=7.8cm]{Fig8} }}%
-% \label{fig:wordcloud}%
-% \caption{IMDb reviews sentiment wordclouds}%
-% \end{figure}
-% \begin{figure}[h]
-% \centering
-% \subfloat[\centering]{{\includegraphics[height=4.95cm]{Fig1} }}%
-% \quad
-% \subfloat[\centering]{{\includegraphics[height=4.96cm]{Fig2} }}%
-% \label{fig:wordcloud}%
-% \caption{IMDb reviews dataset before (a) and after (b) feature engineering and removing stopwords}%
-% \end{figure}
-
-
-
+\newpage
 \section{Results}
 We implement a Multi-Layer Perceptron (MLP) from scratch. The number of input, output, and hidden layer units, as well as the number of hidden layers, can be configured. As the input to the MLP is a flattened $28\times28$ two-dimensional array, we configure the MLP to take 784 ($28\times28$) input units. We are classifying digits 0-9, thus we configure the MLP to have 10 output units.
 For the MLP to learn non-linear decision boundaries, we introduce non-linearity to our network by implementing four activation functions (Sigmoid, TanH, ReLU, and Leaky ReLU).
-We use mini-batch stochastic gradient descent as the optimization algorithm in our backpropagation. Additionally, to tackle the problem of exploding or vanishing gradients in our network, we assure equal variance between layers using Xavier initialization to initialize weights in our deep layers.
+We use mini-batch stochastic gradient descent as the optimization algorithm in our backpropagation. Additionally, to tackle the problem of exploding or vanishing gradients in our network, we assure equal variance between layers using Xavier initialization to initialize weights in our deep layers. We follow tutorials [1, 2, 3] in implementing parts of the Multilayer Perceptron.
 
+We run three experiments with three different models and plot the train and test accuracies as a function of epochs. For the first model, we create an MLP with no hidden layers that directly maps the inputs
+to outputs. The second model contains a single hidden layer having 128 units and ReLU activations. The third model MLP is similar to the second one with one additional 128 unit hidden layer. Before running each experiment, we tune model hyperparameters including batch size and learning rate by performing a grid search. The details of this process and results can be found in the submitted notebook. The results of our experiments can be found in Figure \ref{AccuracyvsEpochs}.
 
+\begin{figure}[h]
+    \centering
+    \subfloat[\centering No hidden layers]{{\includegraphics[width=5.9cm]{F1} }}%
+    \quad
+    \subfloat[\centering One 128-unit hidden layer with ReLU activation]{{\includegraphics[width=5.9cm]{F2} }}
+    \quad
+    \subfloat[\centering Two 128-unit hidden layers with ReLU activation]{{\includegraphics[width=5.9cm]{F3} }}%
+    \caption{Test and train performance as a function of training epochs}%
+    \label{AccuracyvsEpochs}
+\end{figure}
+
+For the model with no hidden layers, a learning rate of 0.01 and batch size of 100 results in the best accuracies.  Using those hyperparameters, we observe in Figure \ref{AccuracyvsEpochs} (a) that although train and test accuracies oscillate considerably between epochs, the accuracies have a positive trend overall. However, these oscillations rise considerably using a larger learning rate and/or a smaller batch size. However, even after 50 epochs, the model fails to fully converge and reach a relatively constant train and test accuracies. The model reaches train and test accuracies of approximately 93\% and 92\% after 51 epochs respectively.
+
+Tuning the learning rate and batch size of the model with one hidden layer results in a learning rate of 0.1 and batch size of 70. As can be seen in Figure \ref{AccuracyvsEpochs} (b), the model converges noticeably faster with little oscillation compared to the former model. The model approximately reaches the maximum train and test accuracy after 16 epochs and train and test accuracies of roughly 100\% and 98\% after 51 epochs respectively.
+
+We use a tuned learning rate and batch size of 0.1 and 50 for the third model with two hidden layers. Similar to the model with one hidden layer, this model shown in Figure \ref{AccuracyvsEpochs} (c), converges with little oscillation and reaches the same train and test accuracies but converges faster after only 10 epochs. Even though the train and test accuracies are similar in the model with one and two hidden layers, the time to train the network is higher in the latter (223 vs 175 seconds) as the training time is proportional to the number of hidden layers in our network. Moreover, we note that although the training accuracy reaches 100\% in the models with one and two hidden layers, the test accuracy never declines. Therefore, we don't see any considerable signs of overfitting.
+
+To further study the effect of network depth on the accuracy, we plot the train and test accuracies of networks with depths 0 to 14 shown in Figure 2 (a). We note an enormous boost of train and test accuracy from depth 0 to 1. However, increasing network depth from 1 to 14 doesn't remarkably affect accuracy. In our case increasing the number of hidden layers does not result in overfitting. The acquired results are in line with [4, 5] as a neural network with a single hidden layer with a finite number of units in the hidden layer can approximate continuous functions according to the universal approximation theorem. We obtained a lower accuracy using the MLP with no hidden layers as it can simply approximate linearly separable functions, whereas the MLP with one hidden layer can represent any decision boundary with the ReLU activation function.
+The network containing a single hidden layer offers great accuracy with low time complexity. Moreover, as we mentioned, it is capable of approximating arbitrary continuous functions according to [5] with a finite number of neurons. Therefore, we run an experiment to determine the ideal number of neurons in its hidden layer. We increase the number of neurons in the hidden layer from 1 to 201 in increments of 20 and plot the corresponding test and train accuracies. The results of this experiment illustrated in Figure 2 (b) shows substantial growth in test accuracy when increasing the number of neurons in the hidden layer from 1 to 20 (30\% to 95\%). Test and train accuracies increase steadily until they plateau after 61 neurons in the hidden layer when the model is no longer underfitting. Increasing the number of neurons could result in overfitting, which is not the case in this study.
+\begin{figure}[h]
+    \centering
+    \subfloat[\centering Test and train performance as a function of network depth]{{\includegraphics[width=5.9cm]{F4} }}%
+    \quad
+    \quad
+    \subfloat[\centering Test and train performance as a function of number of neurons in the hidden layer]{{\includegraphics[width=5.9cm]{F5} }}
+    \caption{}
+    \label{AccuracyvsEpochs}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \subfloat[\centering No hidden layers]{{\includegraphics[width=6cm, height=4.2cm]{F7} }}%
+    \quad
+    \subfloat[\centering One 128-unit hidden layer with ReLU activation]{{\includegraphics[width=5.9cm]{F8} }}
+    \quad
+    \subfloat[\centering Two 128-unit hidden layers with ReLU activation]{{\includegraphics[width=5.9cm]{F9} }}%
+    \caption{Test and train performance as a function of training epochs}%
+    \label{AccuracyvsEpochs}
+\end{figure}
+\subsection{aaa}
 
 As mentioned previously, as part of the preprocessing of the dataset, we normalize images. To study the effect of training the MLP using unnormalized images pn accuracy, we use the previously described two-layer MLP with ReLU activation.
 
@@ -71,7 +95,15 @@ To make use of all of our findings, we create a graphical user interface and int
 
 \section{Statement of Contribution}
 
+
 \newpage
 \begin{thebibliography}{widest entry}
+    % \bibitem[1]{} A. Agrawal, “Building Neural Network from scratch” Medium, 18-Feb-2019. [Online]. Available: https://towardsdatascience.com/building-neural-network-from-scratch-9c88535bf8e9. [Accessed: 31-Mar-2021].
+    %
+    % \bibitem[2]{} Lzkatz, “How do I implement leaky relu using Numpy functions” Stack Overflow, 24-May-2018. [Online]. Available: https://stackoverflow.com/a/50517613. [Accessed: 31-Mar-2021].
+    %
+    % \bibitem[3]{} V. Valkov, “Creating a Neural Network from Scratch - TensorFlow for Hackers (Part IV),” Medium, 20-Jun-2018. [Online]. Available: https://medium.com/@curiousily/tensorflow-for-hackers-part-iv-neural-network-from-scratch-1a4f504dfa8. [Accessed: 31-Mar-2021].
+    % \bibitem[4]{} G. Cybenko, “Approximation by superpositions of a sigmoidal function,” Mathematics of Control, Signals, and Systems, vol. 2, no. 4, pp. 303–314, 1989.
+    % \bibitem[5]{} K. Hornik, “Approximation capabilities of multilayer feedforward networks,” Neural Networks, vol. 4, no. 2, pp. 251–257, 1991.
 \end{thebibliography}
 \end{document}
