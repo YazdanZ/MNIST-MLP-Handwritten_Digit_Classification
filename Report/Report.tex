@@ -33,7 +33,7 @@
 
 
 \newpage
-\section{Results}
+\section{Results and Analysis}
 We implement a Multi-Layer Perceptron (MLP) from scratch. The number of input, output, and hidden layer units, as well as the number of hidden layers, can be configured. As the input to the MLP is a flattened $28\times28$ two-dimensional array, we configure the MLP to take 784 ($28\times28$) input units. We are classifying digits 0-9, thus we configure the MLP to have 10 output units.
 For the MLP to learn non-linear decision boundaries, we introduce non-linearity to our network by implementing four activation functions (Sigmoid, TanH, ReLU, and Leaky ReLU).
 We use mini-batch stochastic gradient descent as the optimization algorithm in our backpropagation. Additionally, to tackle the problem of exploding or vanishing gradients in our network, we assure equal variance between layers using Xavier initialization to initialize weights in our deep layers. We follow tutorials [1, 2, 3] in implementing parts of the Multilayer Perceptron.
@@ -110,9 +110,13 @@ We ran experiments to study the effect of learning rate and batch size parameter
 
 To make use of all of our findings, we create a graphical user interface and integrate into it our most performant model. This GUI accepts mouse input to draw a digit on the canvas and identifies the drawn digit. The GUI can be launched by running \verb+gui.py+. Demonstrations of this program can be found in the submitted \verb+demo+ folder.
 
-\section{Discussion and Conclusion}
+By creating the confusion matrix (Figure x a) of the most performant network using unseen data, we can extract information such as the similarities between handwritten digits. We find that digit pairs (4, 9) and (7, 9) are the most confused pairs by our network and can have high similarities when drawn.
 
-\section{Statement of Contribution}
+\section{Discussion and Conclusion}
+To conclude, we implemented a MultiLayer perceptron to classify image data from the MNIST handwritten digit dataset. We ran multiple experiments on network depth, the number of neurons in hidden layers and interpreted our results using the universal approximation theorem and [4,5]. We found that a network with one hidden layer offered great advantages compared to a network with no hidden layer, a network with two or more hidden layers did not offer considerable advantages to the former. Additionally, we proved the possibility of achieving high accuracy by using a finite number of neurons in a one-layer network. Next, we ran analyses on different activation functions and found that ReLU offered the best learning time, faster convergence, and the highest accuracy. We found that even though L2 regularization did not significantly affect the performance of our model, training the network with normalized images, resulted in a notable boost in accuracy and covergence time. Finally, we compiled all of our findings on the network and dataset in a GUI capable of classifying digits drawn by mouse input on a canvas. Our future works will build on the current implementation and study the results of dropout and data augmentation on the network.\\
+
+\noindent \textbf{\large Statement of Contribution}\\
+\footnotesize This study consisted of implementing different software component including the MLP, loss functions, dataset and result visualizers, the GUI, and model analyzers done by Seyed Yazdan Zinati. Seyedbehman Mashari implemented the preprocessor and regularization. Mohammadhadi Foroutan wrote to the Introduction section in the report. Seyedbehnam Mashari wrote the Dataseta section, and Seyed Yazdan Zinati compiled results and findings in the Results and Analysis and Conclusion section.
 
 
 \newpage
