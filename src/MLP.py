@@ -3,7 +3,11 @@ from time import time
 from tqdm import trange
 from Layer import Layer
 from Activation import ReLU, Sig, Tanh, Activation
-from Loss import softmax_crossentropy_with_logits, grad_softmax_crossentropy_with_logits
+from Loss import (
+    softmax_crossentropy_with_logits,
+    grad_softmax_crossentropy_with_logits,
+    L2_regularization_loss,
+)
 from HiddenLayer import HiddenLayer
 from tqdm import tqdm
 
@@ -11,7 +15,9 @@ np.random.seed(0)
 
 
 class MLP:
-    def __init__(self, activation, num_in, hidden, lr=0.1, num_out=10):
+    def __init__(
+        self, activation, num_in, hidden, lr=0.1, num_out=10, regularization=False
+    ):
         network = []
 
         # no hidden layers
@@ -34,6 +40,7 @@ class MLP:
                 network.append(HiddenLayer(layer, num_out, learning_rate=lr))
 
         self.network = network
+        self.regularization = regularization
 
     def forward_propagate(self, X):
         activations = []
@@ -80,12 +87,17 @@ class MLP:
         # Reverse propogation as this is backprop
         for layer_index in range(len(self.network))[::-1]:
             layer = self.network[layer_index]
-
-            loss_grad = layer.backward_propagate(
-                layer_inputs[layer_index], loss_grad
-            )  # grad w.r.t. input, also weight updates
-
-        #  return np.mean(loss)
+            if self.regularization and isinstance(layer, HiddenLayer):
+                loss_grad = layer.backward_propagate(
+                    layer_inputs[layer_index], loss_grad
+                )
+                loss_grad += L2_regularization_loss(
+                    layer.weights, layer.biases, lambd=0.1, y=y
+                )
+            else:
+                loss_grad = layer.backward_propagate(
+                    layer_inputs[layer_index], loss_grad
+                )
 
     def predict(self, X):
 

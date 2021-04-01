@@ -214,7 +214,11 @@ title = "Accuracy of the 2 layer MLP using different activation functions"
 plot_activation_accuracy(accuracies, activations, title)  # Figure9
 # ---------------------------------------------------------------------
 # Part3.3
-
+print(
+    "\n\nmlp a 2 hidden layers having 128 units with ReLU activation (+ regularization)"
+)
+mlp = MLP(ReLU, X_train.shape[1], [128, 128], regularization=True)
+test_mlp_model(mlp, 51, 30, print_lists=True)
 # ---------------------------------------------------------------------
 # Part3.4
 
@@ -234,7 +238,7 @@ print(
 lr, bs = tune_hyperparams([128, 128], lrs=[0.001, 0.01])
 print(f"minibatch sizes: {bs}, learning_rate: {lr}")
 mlp = MLP(ReLU, X_train.shape[1], [128, 128], lr=lr)
-test_mlp_model(mlp, 51, bs, print_lists=True) 
+test_mlp_model(mlp, 51, bs, print_lists=True)
 # ---------------------------------------------------------------------
 #  Extra experiements
 
@@ -243,12 +247,9 @@ def confusion_matrix(mlp, epochs, bs):
     test_prediction, train_prediction = test_mlp_model(
         mlp, epochs, 30, print_lists=False, plot=False, get_predictions=True
     )
-    plot_confusion_matrix(
-        y_test, test_prediction, "Test data confusion_matrix"
-    )  
-    plot_confusion_matrix(
-        y_train, train_prediction, "Train data confusion_matrix"
-    )  
+    plot_confusion_matrix(y_test, test_prediction, "Test data confusion_matrix")
+    plot_confusion_matrix(y_train, train_prediction, "Train data confusion_matrix")
+
 
 print("\n\nmlp a 2 hidden layers having 128 units with ReLU activation")
 lr, bs = 0.1, 50
